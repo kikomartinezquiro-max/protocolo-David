@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocolo PIE FIRME · David Tortolero</title>
+<style>
+  :root{
+    --crema:#F7F1E6; --tinta:#1A1208; --gold:#C4A84A;
+    --b1:#7a9e7e; --b2:#C49A2E; --b3:#c1704a; --b4:#2c3e50; --b5:#3a7a7a; --b6:#5b6ea8;
+    --tech:#2dd4bf; --panel:#12100b;
+    --card:#ffffff; --muted:#6b6155; --linea:#e6dcc7;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--crema); color:var(--tinta);
+    font-family:Arial,Helvetica,sans-serif; line-height:1.65; font-size:17px;}
+  h1,h2,h3,h4,h5{font-family:Georgia,'Palatino Linotype',Palatino,serif; line-height:1.25; margin:0 0 .4em;}
+  p{margin:0 0 1em;}
+  section{padding:58px max(28px,calc((100% - 980px)/2)); width:100%;}
+  .small{font-size:14px; color:var(--muted);}
+  a{color:inherit;}
+
+  /* ===== COVER ===== */
+  .cover{background:var(--tinta); color:var(--crema); min-height:86vh; position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:40px 24px;
+    background-image:radial-gradient(circle at 50% 18%, rgba(196,168,74,.18), transparent 60%);}
+  .cover::before{content:''; position:absolute; inset:-25%; pointer-events:none;
+    background:radial-gradient(circle at 50% 32%, rgba(196,168,74,.18), transparent 55%); animation:glow 7s ease-in-out infinite;}
+  .cover-inner{border:1px solid rgba(196,168,74,.45); border-radius:14px; padding:54px 40px; max-width:680px; width:100%; position:relative; z-index:1;}
+  .cover .brand{font-family:'Courier New',monospace; letter-spacing:4px; font-size:12px; color:var(--gold); text-transform:uppercase;}
+  .cover .rule{width:54px; height:2px; background:var(--gold); margin:22px auto;}
+  .cover h1{color:#fff; font-size:58px; letter-spacing:2px; margin:0;}
+  .cover .clave{font-family:'Courier New',monospace; font-size:12px; color:var(--tech); letter-spacing:3px; text-transform:uppercase; margin-top:6px;}
+  .cover .para{font-family:Georgia,serif; font-style:italic; font-size:24px; color:var(--gold); margin:20px 0 4px;}
+  .cover .desc{font-size:15px; color:#d8cfbe; max-width:440px; margin:8px auto 0;}
+  .cover .pie{margin-top:34px; padding-top:18px; border-top:1px solid rgba(255,255,255,.15); font-size:13px; color:#bdb29c;}
+
+  /* ===== NAV ===== */
+  nav{position:sticky; top:0; z-index:50; background:rgba(26,18,8,.97); backdrop-filter:blur(6px);
+    padding:10px max(14px,calc((100% - 1120px)/2)); display:flex; gap:7px; overflow-x:auto; border-bottom:1px solid var(--gold);}
+  nav button{flex:0 0 auto; background:transparent; color:#e8dfce; border:1px solid rgba(255,255,255,.18);
+    border-radius:999px; padding:7px 13px; font-size:13px; cursor:pointer; font-family:Arial,sans-serif; transition:.15s;}
+  nav button:hover{background:var(--gold); color:var(--tinta); border-color:var(--gold);}
+
+  /* ===== CARTA ===== */
+  .carta{background:#fffdf8; border:1px solid var(--linea); border-left:5px solid var(--gold);
+    border-radius:10px; padding:34px 34px 26px; box-shadow:0 8px 30px rgba(26,18,8,.06);}
+  .firma{font-family:Georgia,serif; font-style:italic; font-size:20px; color:var(--b3); margin-top:6px;}
+
+  /* ===== AVISO ===== */
+  .aviso{background:#fdeee6; border:1px solid #e7c3ad; border-radius:10px; padding:18px 22px; color:#7a3d22; font-size:15px;}
+  .aviso strong{color:#9a3a17;}
+
+  /* ===== GRID ===== */
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .gcard{background:var(--card); border:1px solid var(--linea); border-radius:12px; padding:18px 16px; cursor:pointer; transition:.18s; border-top:4px solid var(--gold);}
+  .gcard:hover{transform:translateY(-3px); box-shadow:0 10px 24px rgba(26,18,8,.10);}
+  .gcard .n{font-family:'Courier New',monospace; color:var(--muted); font-size:12px; letter-spacing:1px;}
+  .gcard h4{margin:.3em 0 .2em; font-size:17px;}
+  .gcard p{font-size:13.5px; color:var(--muted); margin:0;}
+
+  /* ===== EXPLICACIÓN SISTEMA ===== */
+  .explica{background:#fffdf8; border:1px dashed var(--gold); border-radius:12px; padding:22px 24px; margin-bottom:18px;}
+  .explica h3{margin-top:0;}
+  .defs{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:10px;}
+  .def{background:#fff; border:1px solid var(--linea); border-radius:9px; padding:12px 14px;}
+  .def b{color:var(--b3);}
+  .def span{display:block; font-size:13.5px; color:#4d463b; margin-top:2px;}
+
+  /* ===== PANEL ===== */
+  .dash{background:var(--panel); color:#efe9da; border-radius:16px; padding:28px 26px;}
+  .dash h2{color:#fff;}
+  .dash .mono{font-family:'Courier New',monospace; color:var(--tech); letter-spacing:1px; font-size:13px; text-transform:uppercase;}
+  .dash-top{display:grid; grid-template-columns:1.2fr 1fr; gap:24px; align-items:center;}
+  .lvlbox .lvlnum{font-family:'Courier New',monospace; color:var(--gold); font-size:13px; letter-spacing:1px;}
+  .lvlbox .lvlname{font-size:28px; font-family:Georgia,serif; color:#fff; margin:2px 0;}
+  .bar{height:18px; background:#262219; border-radius:999px; overflow:hidden; border:1px solid #3a3426; margin:10px 0 6px;}
+  .bar > i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--tech),var(--gold)); transition:width .5s;}
+  .stats{display:flex; gap:22px; flex-wrap:wrap; margin-top:12px;}
+  .stat{text-align:center;}
+  .stat b{display:block; font-size:30px; color:var(--gold); font-family:Georgia,serif; line-height:1;}
+  .stat span{font-size:12px; color:#bdb29c; text-transform:uppercase; letter-spacing:1px;}
+  #radar{display:block; margin:0 auto; max-width:100%;}
+  .logros{display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:10px; margin-top:22px;}
+  .logro{background:#1c180f; border:1px solid #322c1d; border-radius:10px; padding:12px; opacity:.45; transition:.25s;}
+  .logro.on{opacity:1; border-color:var(--tech); box-shadow:0 0 0 1px var(--tech) inset;}
+  .logro .ic{font-family:'Courier New',monospace; color:var(--tech); font-weight:bold; font-size:15px;}
+  .logro h5{margin:.3em 0 .1em; font-size:14px; color:#fff; font-family:Arial,sans-serif;}
+  .logro p{margin:0; font-size:11.5px; color:#b6ab93;}
+  .mapa{display:grid; grid-template-columns:repeat(8,16px); gap:5px; margin-top:8px; padding:14px; background:#1c180f; border:1px solid #322c1d; border-radius:10px; width:max-content; max-width:100%;}
+  .cell{width:16px; height:16px; border-radius:3px; background:#3a342a; box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);}
+  .cell.l1{background:rgba(45,212,191,.4); box-shadow:none;}
+  .cell.l2{background:rgba(45,212,191,.7); box-shadow:none;}
+  .cell.l3{background:var(--tech); box-shadow:none;}
+  .cell.hoy{box-shadow:inset 0 0 0 2px var(--gold);}
+  .leg{display:inline-block; width:13px; height:13px; border-radius:3px; vertical-align:middle; margin:0 1px; background:#3a342a;}
+  .leg.l1{background:rgba(45,212,191,.4);} .leg.l2{background:rgba(45,212,191,.7);} .leg.l3{background:var(--tech);}
+
+  /* ===== BLOQUES ===== */
+  .bhead{display:flex; align-items:center; gap:14px; margin-bottom:6px;}
+  .bbadge{font-family:'Courier New',monospace; font-weight:bold; color:#fff; width:54px; height:54px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex:0 0 auto;}
+  .bhead h2{margin:0;}
+  .bhead .tag{font-size:13px; color:var(--muted);}
+
+  .ej{display:flex; background:var(--card); border:1px solid var(--linea); border-radius:12px; overflow:hidden; margin:14px 0; box-shadow:0 4px 14px rgba(26,18,8,.05);}
+  .ej .rom{flex:0 0 60px; color:#fff; display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-size:24px;}
+  .ej .body{padding:18px 20px; flex:1; min-width:0;}
+  .ej h4{margin:0 0 .2em; font-size:19px;}
+  .ej .q{font-style:italic; color:var(--b3); margin:0 0 .7em; font-size:15px;}
+  .ej .label{font-family:'Courier New',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); display:block; margin-top:10px; margin-bottom:2px;}
+  .ej .dur{display:inline-block; margin-top:4px; background:var(--crema); border:1px solid var(--linea); border-radius:8px; padding:5px 10px; font-size:13.5px;}
+  .ej .prec{margin-top:10px; background:#fdeee6; border-left:3px solid #d98a63; padding:8px 12px; font-size:13.5px; color:#7a3d22; border-radius:6px;}
+  .ej .yt{margin-top:8px; background:#fbf6e8; border:1px solid #ecd9a6; border-radius:8px; padding:8px 12px; font-size:13.5px;}
+  .ej .yt b{font-family:'Courier New',monospace; color:#8a6d1f;}
+  .ej .alt{margin-top:8px; background:#eef4ef; border-left:3px solid var(--b1); border-radius:6px; padding:8px 12px; font-size:13.5px; color:#33503a;}
+  .ej .alt b{color:#2c5135;}
+
+  .doneBtn{margin-top:16px; width:100%; background:var(--tinta); color:#fff; border:none; border-radius:10px; padding:13px 16px; font-size:15.5px; cursor:pointer; transition:.15s; font-family:Arial,sans-serif; font-weight:bold;}
+  .doneBtn:hover{background:var(--gold); color:var(--tinta);}
+  .doneBtn.ok{background:var(--b1);}
+
+  table{width:100%; border-collapse:collapse; margin:12px 0; background:#fff; border-radius:10px; overflow:hidden;}
+  th,td{padding:11px 12px; text-align:left; border-bottom:1px solid var(--linea); font-size:14.5px;}
+  th{background:var(--tinta); color:#fff; font-weight:bold; font-size:13px;}
+  tr:last-child td{border-bottom:none;}
+  .fase{border-radius:12px; padding:18px 20px; margin:14px 0; border:1px solid var(--linea); background:#fff;}
+  .fase h3{display:flex; align-items:center; gap:10px;}
+  .fase .ph{font-family:'Courier New',monospace; font-size:12px; color:#fff; padding:3px 9px; border-radius:6px;}
+  .express{background:var(--tinta); color:#f3ecdc; border-radius:14px; padding:24px;}
+  .express h3{color:var(--gold);}
+  .express ul{margin:.4em 0; padding-left:20px;}
+
+  .habito{background:#fff; border:1px solid var(--linea); border-left:4px solid var(--b4); border-radius:10px; padding:14px 18px; margin:10px 0;}
+  .habito h4{margin:0 0 .2em; font-size:16.5px;}
+  .habito p{margin:0; font-size:14.5px; color:#4d463b;}
+
+  .diario{background:#fffdf8; border:1px solid var(--linea); border-radius:14px; padding:24px;}
+  .frow{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end;}
+  .field{flex:1 1 140px;}
+  .field label{display:block; font-size:13px; color:var(--muted); margin-bottom:4px; font-weight:bold;}
+  .field input[type=range]{width:100%;}
+  .field textarea{width:100%; border:1px solid var(--linea); border-radius:8px; padding:9px; font-family:Arial,sans-serif; font-size:14px; resize:vertical;}
+  .rngval{font-family:'Courier New',monospace; color:var(--b3); font-weight:bold;}
+  .addBtn{background:var(--b1); color:#fff; border:none; border-radius:8px; padding:11px 20px; font-size:15px; cursor:pointer; font-family:Arial,sans-serif;}
+  .entry{background:#fff; border:1px solid var(--linea); border-radius:10px; padding:12px 14px; margin:10px 0; font-size:14px;}
+  .entry .d{font-family:'Courier New',monospace; color:var(--muted); font-size:12px;}
+
+  .cierre{background:var(--b1); color:#fff; border-radius:16px; padding:34px; text-align:center;}
+  .cierre h2{color:#fff;} .cierre .firma{color:#fff; font-size:22px;}
+  footer{background:var(--tinta); color:#cfc6b6; text-align:center; padding:30px; font-size:13.5px;}
+  footer .lema{color:var(--gold); font-family:Georgia,serif; font-style:italic; font-size:16px;}
+
+  .toolbar{position:fixed; right:16px; bottom:16px; z-index:60; display:flex; flex-direction:column; gap:10px;}
+  .toolbar button{background:var(--tinta); color:#fff; border:1px solid var(--gold); border-radius:999px; padding:12px 16px; font-size:14px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.25); font-family:Arial,sans-serif;}
+  .toolbar button:hover{background:var(--gold); color:var(--tinta);}
+
+  .modal-bg{position:fixed; inset:0; background:rgba(13,17,23,.6); display:none; align-items:center; justify-content:center; z-index:200; padding:20px;}
+  .modal{background:#fff; border-radius:14px; padding:26px; max-width:380px; text-align:center;}
+  .modal .mbtns{display:flex; gap:10px; justify-content:center; margin-top:16px;}
+  .modal button{border:none; border-radius:8px; padding:10px 18px; cursor:pointer; font-size:14px; font-family:Arial,sans-serif;}
+  .mok{background:var(--b3); color:#fff;} .mno{background:#e6dcc7; color:var(--tinta);}
+
+  /* ===== vida visual ===== */
+  body.anim .reveal{opacity:0; transform:translateY(16px); transition:opacity .55s ease, transform .55s ease;}
+  body.anim .reveal.in{opacity:1; transform:none;}
+  .gcard,.ej,.doneBtn,.logro{transition:transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;}
+  .ej:hover{transform:translateY(-2px); box-shadow:0 10px 24px rgba(26,18,8,.10);}
+  .logro.on:hover{transform:translateY(-2px);}
+  @keyframes glow{0%,100%{opacity:.55; transform:scale(1);}50%{opacity:1; transform:scale(1.08);}}
+  @keyframes pop{0%{transform:scale(1);}40%{transform:scale(1.05);}100%{transform:scale(1);}}
+  .doneBtn.pop{animation:pop .45s ease;}
+  @media (prefers-reduced-motion: reduce){
+    body.anim .reveal{opacity:1 !important; transform:none !important; transition:none;}
+    .cover::before{animation:none;}
+  }
+
+  @media(max-width:760px){
+    .cover h1{font-size:42px;} .cover-inner{padding:38px 24px;}
+    .grid4{grid-template-columns:repeat(2,1fr);}
+    .dash-top{grid-template-columns:1fr;}
+    section{padding:42px 18px;}
+  }
+  @media print{
+    nav,.toolbar,.doneBtn,.addBtn,.modal-bg{display:none !important;}
+    body{background:#fff; font-size:12px; color:#000;}
+    section{padding:16px 22px; page-break-inside:avoid;}
+    .cover{min-height:auto; background:#fff; color:#000; padding:24px;}
+    .cover-inner{border-color:#C4A84A;} .cover h1,.cover .para{color:#000;}
+    .dash{background:#fff; color:#000; border:1px solid #999;}
+    .dash h2,.lvlbox .lvlname{color:#000;} .logro{opacity:1;}
+    .ej,.gcard,.fase,.habito,.entry,.carta,.diario,.explica{box-shadow:none; border:1px solid #bbb;}
+    .cierre{background:#fff; color:#000; border:1px solid #999;} .cierre h2,.cierre .firma{color:#000;}
+    footer{background:#fff; color:#000;} footer .lema{color:#000;}
+    body.anim .reveal{opacity:1 !important; transform:none !important;}
+    .cover::before{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== COVER ===== -->
+<header class="cover">
+  <div class="cover-inner">
+    <div class="brand">Kiko Martínez · Terapeuta Natural</div>
+    <div class="rule"></div>
+    <h1>PIE FIRME</h1>
+    <div class="clave">programa de reentrenamiento del pie</div>
+    <div class="para">Para David</div>
+    <div class="desc">Tu plan personalizado para trabajar en casa, paso a paso, para recuperar el arco, la fuerza y una pisada firme.</div>
+    <div class="pie">Osteopatía · Coaching · Fitoterapia · Bienestar Integral<br>Programa complementario para trabajo domiciliario</div>
+  </div>
+</header>
+
+<!-- ===== NAV ===== -->
+<nav id="nav">
+  <button onclick="irA('carta')">Bienvenida</button>
+  <button onclick="irA('quepasa')">Tu pie</button>
+  <button onclick="irA('mapa')">Mapa</button>
+  <button onclick="irA('sistema')">Tu progreso</button>
+  <button onclick="irA('b1')">1·Liberar</button>
+  <button onclick="irA('b2')">2·Despertar</button>
+  <button onclick="irA('b3')">3·Fuerza</button>
+  <button onclick="irA('b4')">4·Cadera</button>
+  <button onclick="irA('b5')">5·Alinear</button>
+  <button onclick="irA('b6')">6·Marcha</button>
+  <button onclick="irA('rutina')">Rutina</button>
+  <button onclick="irA('habitos')">Hábitos</button>
+  <button onclick="irA('diario')">Diario</button>
+</nav>
+
+<!-- ===== CARTA ===== -->
+<section id="carta">
+  <div class="carta">
+    <h2>¡Hola, David!</h2>
+    <p>Lo primero, gracias por la confianza. Y lo segundo, una buena noticia de las que gustan: lo que notas en el pie tiene arreglo, y estás justo en el mejor momento de tu vida para conseguirlo.</p>
+    <p>Sé que cuando andas un buen rato —como en el viaje de fin de curso, con esas caminatas que no se acababan nunca— el pie acaba cansándose y fastidiándote el plan. No es que andes raro ni mucho menos: es que tu pie está aguantando todo el peso sin la ayuda que debería tener. Y eso se entrena, igual que se entrena cualquier otra cosa.</p>
+    <p>Aquí viene lo bueno: tienes 15 años, estás creciendo y tu cuerpo aprende rapidísimo ahora mismo. Lo que hicimos juntos en la consulta fue solo darle al botón de encendido. El cambio de verdad lo vas a hacer tú, en casa, con lo que tienes en estas páginas.</p>
+    <p>Y te lo he montado a tu rollo. Como te mola la informática, esto lo vas a pillar al vuelo: tu pie es como un sistema que arrancó con una mala configuración, así que vamos a ir instalando mejoras, subiendo de nivel y desbloqueando logros hasta dejarlo fino. Tienes tu propio panel para ver cómo avanzas. Tómatelo como un juego… pero un juego que va en serio.</p>
+    <p>Solo te pido una cosa, y es LA clave de todo: <strong>constancia</strong>. Cinco minutos cada día le ganan por goleada a una hora suelta de vez en cuando. Esto no va de machacarte un día, va de no fallar. Si eres constante, en unas semanas lo vas a notar: andando, subiendo escaleras y, sobre todo, en el tatami.</p>
+    <p>Vamos a por ello. Me tienes aquí para lo que necesites, cuando lo necesites.</p>
+    <div class="firma">— Kiko</div>
+  </div>
+</section>
+
+<!-- ===== QUÉ PASA ===== -->
+<section id="quepasa">
+  <h2>Qué está pasando en tu pie (en cristiano)</h2>
+  <p>Imagina que tu pie es el hardware y tu forma de andar es el software. Ahora hay un "cuello de botella" que lo ralentiza todo:</p>
+  <div class="grid4" style="margin:18px 0;">
+    <div class="gcard" style="border-top-color:var(--b1);"><div class="n">01 · ENTRADA</div><h4>Gemelos cortos</h4><p>La parte de atrás de la pierna está muy acortada y el tobillo no dobla lo que debería.</p></div>
+    <div class="gcard" style="border-top-color:var(--b2);"><div class="n">02 · SOBRECARGA</div><h4>Arco caído</h4><p>Para compensar, el pie se vence hacia dentro y el arco se hunde (pie plano-valgo).</p></div>
+    <div class="gcard" style="border-top-color:var(--b6);"><div class="n">03 · DESVÍO</div><h4>Rodilla y cadera</h4><p>Eso arrastra la rodilla hacia dentro y obliga a la cadera a trabajar de más.</p></div>
+    <div class="gcard" style="border-top-color:var(--b3);"><div class="n">04 · SALIDA</div><h4>Despegue torcido</h4><p>Al final el pie empuja escapando hacia fuera en vez de salir recto. Pierdes potencia.</p></div>
+  </div>
+  <p>La solución no es solo el pie. Vamos a <strong>dar longitud</strong> a lo que está corto, <strong>despertar</strong> los músculos pequeños del pie, <strong>dar fuerza</strong> a los que sujetan el arco, <strong>reforzar la cadera</strong> para que la rodilla no caiga, y <strong>reeducar tu forma de andar</strong>. Cada bloque ataca una pieza.</p>
+  <div class="aviso" style="margin-top:16px;">
+    <strong>Importante:</strong> este material es de carácter <strong>complementario</strong>. No es un diagnóstico ni un tratamiento médico, y no sustituye la valoración de un profesional sanitario. Es una guía de trabajo para casa pensada para ti.
+  </div>
+</section>
+
+<!-- ===== MAPA ===== -->
+<section id="mapa">
+  <h2>El mapa del trabajo</h2>
+  <p>Seis bloques, en este orden por una razón: primero soltamos y despertamos, luego damos fuerza, y al final lo integramos en tu forma de andar. No hay que hacerlos todos cada día (en la <a onclick="irA('rutina')" style="cursor:pointer; color:var(--b3); text-decoration:underline;">Rutina</a> te digo qué toca cada día).</p>
+  <div class="grid4">
+    <div class="gcard" style="border-top-color:var(--b1);" onclick="irA('b1')"><div class="n">BLOQUE 1</div><h4>Liberar y elastificar</h4><p>Soltar gemelos, isquios y planta del pie.</p></div>
+    <div class="gcard" style="border-top-color:var(--b2);" onclick="irA('b2')"><div class="n">BLOQUE 2</div><h4>Despertar el pie</h4><p>Reactivar los músculos pequeños del pie.</p></div>
+    <div class="gcard" style="border-top-color:var(--b3);" onclick="irA('b3')"><div class="n">BLOQUE 3</div><h4>Fuerza del soporte</h4><p>Reforzar el músculo que sujeta el arco.</p></div>
+    <div class="gcard" style="border-top-color:var(--b4);" onclick="irA('b4')"><div class="n">BLOQUE 4</div><h4>Cadera y core</h4><p>Frenar el valgo desde arriba.</p></div>
+    <div class="gcard" style="border-top-color:var(--b5);" onclick="irA('b5')"><div class="n">BLOQUE 5</div><h4>Realinear</h4><p>Reequilibrar la postura desde la pelvis.</p></div>
+    <div class="gcard" style="border-top-color:var(--b6);" onclick="irA('b6')"><div class="n">BLOQUE 6</div><h4>Marcha</h4><p>Reeducar tu forma de andar y el equilibrio.</p></div>
+  </div>
+</section>
+
+<!-- ===== SISTEMA ===== -->
+<section id="sistema">
+  <h2>Tu sistema de progreso</h2>
+
+  <div class="explica">
+    <h3>¿Cómo funciona? (léelo una vez y ya)</h3>
+    <p style="margin-bottom:6px;">Es muy sencillo: cada vez que terminas un bloque de ejercicios, bajas al final de ese bloque y pulsas su <strong>botón verde de "completado"</strong>. Con eso el sistema registra tu trabajo y te premia. El objetivo del juego no es "acabar", es <strong>no romper la racha</strong>.</p>
+    <div class="defs">
+      <div class="def"><b>XP (puntos)</b><span>Ganas 10 puntos cada vez que completas un bloque. Suman y no bajan.</span></div>
+      <div class="def"><b>Nivel</b><span>Sube según tus puntos. Te dice lo avanzado que vas: del 1 (Arranque) al 6 (Pie firme).</span></div>
+      <div class="def"><b>Racha</b><span>Días seguidos entrenando. Si entrenas hoy y mañana, sube; si fallas un día, vuelve a empezar.</span></div>
+      <div class="def"><b>Logros</b><span>Medallas que se desbloquean al cumplir metas (tu primer día, 7 días seguidos, etc.).</span></div>
+      <div class="def"><b>Tu semana</b><span>Los 7 días de la semana (L a D) empiezan apagados. El día que completes al menos un bloque, su círculo se enciende.</span></div>
+    </div>
+    <p class="small" style="margin:10px 0 0;">Tu progreso se guarda solo en este dispositivo. Si abres el programa en otro sitio, empezará de cero.</p>
+  </div>
+
+  <div class="dash">
+    <div class="mono">// panel de control</div>
+    <h2>Cómo vas</h2>
+    <div class="dash-top">
+      <div class="lvlbox">
+        <div class="lvlnum" id="lvlNum">NIVEL 1</div>
+        <div class="lvlname" id="lvlName">Arranque</div>
+        <div class="bar"><i id="xpbar"></i></div>
+        <div class="small" style="color:#bdb29c;"><span id="xpTxt">0 XP</span> · <span id="xpNext"></span></div>
+        <div class="stats">
+          <div class="stat"><b id="stRacha">0</b><span>Racha (días)</span></div>
+          <div class="stat"><b id="stSes">0</b><span>Bloques hechos</span></div>
+          <div class="stat"><b id="stDias">0</b><span>Días activos</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="mono" style="text-align:center;">Tu equilibrio por áreas</div>
+        <canvas id="radar" width="280" height="250"></canvas>
+        <div class="small" style="color:#bdb29c; text-align:center;">Se va rellenando según trabajas cada bloque</div>
+      </div>
+    </div>
+    <div class="mono" style="margin-top:24px; text-align:center;">// tu semana · lunes a domingo</div>
+    <canvas id="semana" width="340" height="74" style="display:block; margin:6px auto 0; max-width:100%;"></canvas>
+    <div class="small" style="color:#bdb29c; margin-top:4px; text-align:center;">Todos los días empiezan apagados. En cuanto completes al menos un bloque, el círculo de ese día se enciende.</div>
+    <div class="mono" style="margin-top:24px;">// logros</div>
+    <div class="logros" id="logros"></div>
+  </div>
+</section>
+
+<!-- ===== BLOQUE 1 ===== -->
+<section id="b1">
+  <div class="bhead"><div class="bbadge" style="background:var(--b1);">01</div>
+    <div><h2>Liberar y elastificar</h2><div class="tag">Cadena posterior + planta del pie · la prioridad nº 1</div></div></div>
+  <p>Aquí está la base de todo. Tus gemelos, isquios y la planta están muy cortos y tiran de la estructura. Empezamos por darles longitud: sin esto, lo demás rinde la mitad.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b1);">I</div><div class="body">
+    <h4>Rodar la planta del pie</h4><p class="q">Despierta y suelta la fascia plantar acortada.</p>
+    <span class="label">Cómo se hace</span>Sentado o de pie con apoyo, coloca una pelota pequeña (de tenis) bajo la planta y ruédala despacio del talón a los dedos, parándote 3-4 s en los puntos sensibles. Molestia "buena", nunca dolor.
+    <span class="label">Duración</span><div class="dur">1–2 min por pie · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>liberación fascia plantar con pelota</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Si la pelota de tenis molesta, usa una más blanda o una botella pequeña de agua fría, y hazlo sentado para poner menos peso encima.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b1);">II</div><div class="body">
+    <h4>Estiramiento del gemelo en la pared</h4><p class="q">Gana flexión de tobillo: el cuello de botella de todo.</p>
+    <span class="label">Cómo se hace</span>De cara a la pared, manos apoyadas. Pierna a estirar atrás, rodilla estirada y talón clavado en el suelo, punta recta hacia delante. Empuja la cadera hacia la pared hasta notar tensión en la pantorrilla, sin levantar el talón.
+    <span class="label">Duración</span><div class="dur">30 s × 3 por pierna · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>estiramiento gemelo en pared</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Si te desequilibras, hazlo sentado: rodea la planta del pie con una toalla y tira suave de ella hacia ti con la rodilla estirada.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b1);">III</div><div class="body">
+    <h4>Estiramiento del sóleo (rodilla doblada)</h4><p class="q">El gemelo profundo, clave para que el tobillo doble al andar.</p>
+    <span class="label">Cómo se hace</span>Igual que el anterior, pero <b>doblando un poco la rodilla de atrás</b> y manteniendo el talón en el suelo. Notarás el estiramiento más abajo, cerca del tobillo.
+    <span class="label">Duración</span><div class="dur">30 s × 3 por pierna · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>estiramiento soleo de pie</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Hazlo sentado con la toalla en el pie, pero esta vez con la rodilla ligeramente doblada.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b1);">IV</div><div class="body">
+    <h4>Estiramiento de isquiotibiales</h4><p class="q">Suelta la parte de atrás del muslo, que también tira de la pelvis.</p>
+    <span class="label">Cómo se hace</span>Sentado, una pierna estirada y la otra recogida. Con la espalda recta (no encorvada), lleva el pecho hacia el muslo de la pierna estirada hasta notar tensión detrás de la rodilla.
+    <span class="label">Duración</span><div class="dur">30 s × 2 por pierna · a diario</div>
+    <div class="prec"><b>Ojo:</b> no rebotes ni redondees la espalda. Tensión, nunca dolor agudo.</div>
+    <div class="yt">🎥 Busca en YouTube: <b>estiramiento isquiotibiales sentado</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Hazlo tumbado boca arriba subiendo la pierna recta con una toalla rodeando el pie. Así es más fácil mantener la espalda bien.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b1);">V</div><div class="body">
+    <h4>Movilidad de tobillo "rodilla a la pared"</h4><p class="q">Enseña al tobillo a doblar hacia delante, como cuando andas.</p>
+    <span class="label">Cómo se hace</span>En zancada frente a una pared, pie a un palmo de ella. Sin levantar el talón, lleva la rodilla a tocar la pared por delante de los dedos. Si llegas fácil, aleja el pie un poco más.
+    <span class="label">Duración</span><div class="dur">10 repeticiones lentas × 2 por pie</div>
+    <div class="yt">🎥 Busca en YouTube: <b>movilidad tobillo rodilla a la pared</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Hazlo sentado, empujando con las manos la rodilla suavemente hacia delante sobre el pie apoyado.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b1" onclick="hecho('b1')">✓ Marcar Bloque 1 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== BLOQUE 2 ===== -->
+<section id="b2">
+  <div class="bhead"><div class="bbadge" style="background:var(--b2);">02</div>
+    <div><h2>Despertar el pie</h2><div class="tag">Músculos intrínsecos · reactivar lo que está dormido</div></div></div>
+  <p>Dentro del pie hay músculos pequeños que deberían sostener el arco y llevan tiempo apagados. Estos ejercicios los reconectan con tu cerebro. Hazlos <b>descalzo</b>.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b2);">I</div><div class="body">
+    <h4>El "pie corto" (short foot)</h4><p class="q">El ejercicio estrella para volver a formar el arco.</p>
+    <span class="label">Cómo se hace</span>Sentado, pie plano. Sin doblar ni levantar los dedos, acerca la base de los dedos hacia el talón, como formando una cúpula. El arco se levanta un poco. Aguanta y suelta.
+    <span class="label">Duración</span><div class="dur">10 repeticiones de 5 s × 3 series · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>short foot exercise como hacerlo</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Si no sale el arco, pon un dedo de la mano debajo del arco y solo intenta "apretarlo" un poquito hacia arriba. Empieza por sentirlo, sin buscar gran recorrido.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b2);">II</div><div class="body">
+    <h4>Toe yoga (yoga de dedos)</h4><p class="q">Recupera el control independiente de los dedos.</p>
+    <span class="label">Cómo se hace</span>Pie plano. 1) Levanta solo el dedo gordo dejando los otros cuatro abajo. 2) Al revés: gordo abajo y los otros cuatro arriba. Cuesta al principio: es coordinación nueva.
+    <span class="label">Duración</span><div class="dur">10 + 10 repeticiones × 2 · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>toe yoga ejercicio dedos del pie</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Ayúdate con la mano: sujeta abajo los dedos que no toca mover, para que tu cerebro aprenda a aislar el movimiento.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b2);">III</div><div class="body">
+    <h4>Separar los dedos en abanico</h4><p class="q">Combate el apiñamiento y abre el antepié.</p>
+    <span class="label">Cómo se hace</span>Con el pie apoyado, separa todos los dedos como un abanico sin que se levanten. Mantén 3-4 s y relaja.
+    <span class="label">Duración</span><div class="dur">10 repeticiones × 2 · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>ejercicio separar los dedos del pie</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Pon trocitos de algodón o un separador de dedos entre ellos durante un rato al día; ayuda a "recordarle" al pie esa apertura.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b2);">IV</div><div class="body">
+    <h4>Arrugar la toalla con los dedos</h4><p class="q">Fortalece los flexores del pie de forma divertida.</p>
+    <span class="label">Cómo se hace</span>Toalla pequeña en el suelo. Con los dedos, arrúgala y arrástrala hacia ti, como si la "comieras" con el pie. Para más reto, pon un objeto ligero encima.
+    <span class="label">Duración</span><div class="dur">2-3 "toallas" por pie · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>towel scrunch ejercicio pie</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Empieza con una servilleta de papel: pesa menos y se arruga más fácil. También vale recoger del suelo canicas o un bolígrafo con los dedos.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b2);">V</div><div class="body">
+    <h4>Movilidad suave del dedo gordo</h4><p class="q">Mantén móvil el primer dedo y frena la desviación.</p>
+    <span class="label">Cómo se hace</span>Con la mano, mueve el dedo gordo arriba-abajo y, sobre todo, sepáralo despacio hacia fuera (alejándolo del segundo dedo). Tracción muy suave.
+    <span class="label">Duración</span><div class="dur">10 movimientos suaves por pie · a diario</div>
+    <div class="prec"><b>Suave de verdad:</b> es movilidad, no estiramiento agresivo. Si molesta, menos recorrido.</div>
+    <div class="yt">🎥 Busca en YouTube: <b>movilizacion del dedo gordo hallux</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Si el dedo está rígido, los primeros días haz solo el movimiento arriba-abajo, sin separarlo todavía.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b2" onclick="hecho('b2')">✓ Marcar Bloque 2 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== BLOQUE 3 ===== -->
+<section id="b3">
+  <div class="bhead"><div class="bbadge" style="background:var(--b3);">03</div>
+    <div><h2>Fuerza del soporte</h2><div class="tag">Tibial posterior y pantorrilla · los pilares del arco</div></div></div>
+  <p>El tibial posterior es el músculo que, por dentro, tira del arco hacia arriba. Hay que ponerlo fuerte sí o sí.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b3);">I</div><div class="body">
+    <h4>Tibial posterior con banda</h4><p class="q">El ejercicio diana para sujetar tu arco.</p>
+    <span class="label">Cómo se hace</span>Sentado, pierna estirada. Pasa una banda por la parte interna-delantera del pie; el otro extremo lo fijas hacia el lado contrario. Lleva el pie hacia <b>dentro y abajo</b> venciendo la resistencia, y vuelve despacio.
+    <span class="label">Duración</span><div class="dur">12 repeticiones × 3 por pie · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>tibial posterior ejercicio con banda</b></div>
+    <div class="alt"><b>¿No tienes banda?</b> Hazlo con una toalla, o "dibuja el abecedario" en el aire con la punta del pie llevándola sobre todo hacia dentro. Mismo músculo, sin material.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b3);">II</div><div class="body">
+    <h4>Elevación de talones con pelota entre los tobillos</h4><p class="q">Refuerza la pantorrilla guiando el peso hacia el dedo gordo.</p>
+    <span class="label">Cómo se hace</span>De pie, con una pelota o calcetín enrollado entre los tobillos apretando suave. Sube de puntillas despacio cargando hacia el dedo gordo, aguanta 1 s y baja controlando.
+    <span class="label">Duración</span><div class="dur">12 repeticiones × 3 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>elevacion de talones gemelo correcto</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Empieza sentado (mucho menos peso) o de pie agarrado a una pared y sin pelota. Cuando lo domines, añade la pelota.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b3);">III</div><div class="body">
+    <h4>Excéntrico de gemelo en escalón</h4><p class="q">Da fuerza y longitud a la vez a la pantorrilla.</p>
+    <span class="label">Cómo se hace</span>En el borde de un escalón (sujétate a la barandilla), con la parte delantera del pie apoyada. Sube con las dos piernas y <b>baja despacio (4-5 s) con una sola</b>, dejando caer el talón por debajo del escalón.
+    <span class="label">Duración</span><div class="dur">10 repeticiones × 2 por pierna · días alternos</div>
+    <div class="prec"><b>Si molesta el tendón de Aquiles</b>, reduce recorrido y velocidad. Nunca con dolor.</div>
+    <div class="yt">🎥 Busca en YouTube: <b>excentrico de gemelo en escalon</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Baja con las dos piernas a la vez (no a una) y sin dejar caer tanto el talón. Sube la dificultad poco a poco.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b3);">IV</div><div class="body">
+    <h4>Caminar de puntillas y de talones</h4><p class="q">Integra la fuerza del pie en movimiento real.</p>
+    <span class="label">Cómo se hace</span>Descalzo, en un pasillo: 10 pasos de puntillas y 10 sobre los talones, alternando, con control.
+    <span class="label">Duración</span><div class="dur">2-3 idas y vueltas · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>caminar de puntillas y talones ejercicio</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Hazlo a lo largo de una pared o pasillo estrecho, rozándola con la mano para apoyarte si pierdes el equilibrio.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b3" onclick="hecho('b3')">✓ Marcar Bloque 3 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== BLOQUE 4 ===== -->
+<section id="b4">
+  <div class="bhead"><div class="bbadge" style="background:var(--b4);">04</div>
+    <div><h2>Cadera y core</h2><div class="tag">Glúteo medio y centro · frenar el valgo desde arriba</div></div></div>
+  <p>Tu rodilla cae hacia dentro porque la cadera no la frena. Si pones fuerte el glúteo, sujetas toda la pierna y proteges la rodilla. Además te vendrá genial para el kickboxing.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b4);">I</div><div class="body">
+    <h4>Almeja (clam)</h4><p class="q">Activa el glúteo medio, el gran estabilizador de la cadera.</p>
+    <span class="label">Cómo se hace</span>Tumbado de lado, rodillas dobladas y juntas. Sin mover la pelvis, abre la rodilla de arriba como una almeja y baja despacio.
+    <span class="label">Duración</span><div class="dur">15 repeticiones × 2 por lado · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>ejercicio almeja gluteo medio clam</b></div>
+    <div class="alt"><b>¿Te cuesta o molesta la cadera?</b> Abre menos la rodilla y ve más despacio. Cuando vaya fino, ponte una banda por encima de las rodillas para más reto.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b4);">II</div><div class="body">
+    <h4>Abducción de cadera tumbado de lado</h4><p class="q">Sube fuerza del lateral de la cadera.</p>
+    <span class="label">Cómo se hace</span>Tumbado de lado, piernas estiradas. Sube la pierna de arriba recta hacia el techo (sin irte hacia atrás) y baja controlando. La punta del pie mira al frente.
+    <span class="label">Duración</span><div class="dur">12 repeticiones × 2 por lado · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>abduccion de cadera tumbado de lado</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Dobla la pierna de abajo para tener más estabilidad y sube la pierna un poco menos.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b4);">III</div><div class="body">
+    <h4>Pasos laterales con banda (monster walk)</h4><p class="q">Glúteo en acción y control de la rodilla en movimiento.</p>
+    <span class="label">Cómo se hace</span>Banda por encima de las rodillas, media sentadilla. Da pasos laterales sin que las rodillas se vayan hacia dentro: 10 a un lado, 10 al otro.
+    <span class="label">Duración</span><div class="dur">10 + 10 pasos × 2 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>monster walk banda gluteo</b></div>
+    <div class="alt"><b>¿No tienes banda?</b> Hazlo igual sin ella, exagerando la apertura de la rodilla en cada paso y manteniendo la media sentadilla.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b4);">IV</div><div class="body">
+    <h4>Puente de glúteos</h4><p class="q">Fuerza de glúteo y conexión con el centro.</p>
+    <span class="label">Cómo se hace</span>Boca arriba, rodillas dobladas, pies a la anchura de la cadera. Aprieta el glúteo y sube la cadera hasta la línea hombro-cadera-rodilla. Aguanta 2 s y baja despacio.
+    <span class="label">Duración</span><div class="dur">12 repeticiones × 3 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>puente de gluteos tecnica correcta</b></div>
+    <div class="alt"><b>¿Quieres más reto?</b> Hazlo con una sola pierna. <b>¿Molesta la lumbar?</b> Sube menos y aprieta más el abdomen.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b4);">V</div><div class="body">
+    <h4>Plancha frontal</h4><p class="q">Un centro fuerte estabiliza todo lo de abajo.</p>
+    <span class="label">Cómo se hace</span>Apoyo en antebrazos y puntas de los pies, cuerpo en línea recta. Aprieta abdomen y glúteo. Respira con normalidad.
+    <span class="label">Duración</span><div class="dur">20-30 s × 3 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>plancha abdominal tecnica</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Apoya las rodillas en el suelo (plancha de rodillas). Mantén igualmente la línea recta del cuerpo.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b4" onclick="hecho('b4')">✓ Marcar Bloque 4 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== BLOQUE 5 ===== -->
+<section id="b5">
+  <div class="bhead"><div class="bbadge" style="background:var(--b5);">05</div>
+    <div><h2>Realinear</h2><div class="tag">Reequilibrio postural desde la pelvis · descarga</div></div></div>
+  <p>Estas posturas son de "reset": colocan la pelvis y la cadera en posición neutra y le recuerdan al cuerpo cómo es estar alineado. Cómodas, casi de descanso. Ideales al final del día.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b5);">I</div><div class="body">
+    <h4>Espalda en el suelo con piernas en silla</h4><p class="q">Descarga la zona lumbar y relaja la cadena posterior.</p>
+    <span class="label">Cómo se hace</span>Boca arriba, pantorrillas apoyadas sobre una silla o sofá, caderas y rodillas a 90°. Brazos relajados. Deja que la espalda baja se aplane sola contra el suelo. Solo respira.
+    <span class="label">Duración</span><div class="dur">5 minutos · a diario, mejor de noche</div>
+    <div class="yt">🎥 Busca en YouTube: <b>static back egoscue</b></div>
+    <div class="alt"><b>¿No tienes silla a la altura?</b> Túmbate con las rodillas dobladas y los pies apoyados en el suelo. El efecto de descarga es parecido.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b5);">II</div><div class="body">
+    <h4>Pierna apoyada en la pared (apertura de ingle)</h4><p class="q">Reequilibra la pelvis lado a lado.</p>
+    <span class="label">Cómo se hace</span>Boca arriba junto a una pared. Una pierna estirada apoyada hacia arriba en la pared; la otra estirada en el suelo. Mantén, respira, y a mitad cambia de lado.
+    <span class="label">Duración</span><div class="dur">3-4 minutos por lado · días de descarga</div>
+    <div class="yt">🎥 Busca en YouTube: <b>supine groin progressive egoscue</b></div>
+    <div class="alt"><b>¿Tira demasiado?</b> Separa el cuerpo de la pared y deja la rodilla un poco doblada. Conforme ganes flexibilidad, te acercas.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b5);">III</div><div class="body">
+    <h4>Sentadilla isométrica en la pared (wall sit)</h4><p class="q">Reeduca la alineación cadera-rodilla-tobillo y da resistencia.</p>
+    <span class="label">Cómo se hace</span>De espaldas a la pared, baja deslizando hasta una posición cómoda. Pies a la anchura de la cadera, peso en los talones, <b>rodillas mirando al frente</b> (no hacia dentro). Aguanta.
+    <span class="label">Duración</span><div class="dur">20-40 s × 3 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>wall sit sentadilla isometrica pared</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Baja menos (ángulo más abierto) y aguanta menos tiempo. Lo importante es la posición de las rodillas, no lo bajo que llegues.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b5" onclick="hecho('b5')">✓ Marcar Bloque 5 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== BLOQUE 6 ===== -->
+<section id="b6">
+  <div class="bhead"><div class="bbadge" style="background:var(--b6);">06</div>
+    <div><h2>Marcha y equilibrio</h2><div class="tag">Control motor · enseñar al cuerpo el patrón nuevo</div></div></div>
+  <p>Aquí juntamos todo y lo metemos en tu forma de moverte. Es lo que de verdad cambia lo del vídeo: el pie escapando hacia fuera y el cansancio al rato de andar.</p>
+
+  <div class="ej"><div class="rom" style="background:var(--b6);">I</div><div class="body">
+    <h4>Sentadilla frente al espejo</h4><p class="q">Aprende a que la rodilla NO se vaya hacia dentro.</p>
+    <span class="label">Cómo se hace</span>Frente a un espejo, pies a la anchura de la cadera. Sentadillas lentas vigilando que cada rodilla apunte hacia el 2º-3er dedo, sin caer hacia dentro. El espejo es tu monitor en tiempo real.
+    <span class="label">Duración</span><div class="dur">10 repeticiones lentas × 2 · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>control rodilla valgo sentadilla</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Hazla bajando a tocar una silla con el culo y subiendo. La silla te marca hasta dónde bajar y te da seguridad.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b6);">II</div><div class="body">
+    <h4>Bajada de escalón controlada (step-down)</h4><p class="q">Control de la pierna en apoyo, como en cada paso real.</p>
+    <span class="label">Cómo se hace</span>De pie sobre un escalón, baja despacio un pie hacia el suelo rozando con el talón y vuelve a subir, vigilando que la rodilla de apoyo no se meta hacia dentro y el arco no se hunda.
+    <span class="label">Duración</span><div class="dur">8 repeticiones × 2 por pierna · días alternos</div>
+    <div class="yt">🎥 Busca en YouTube: <b>step down ejercicio control rodilla</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Usa un escalón más bajo (o un par de libros gruesos). Cuanto más bajo, más fácil controlar.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b6);">III</div><div class="body">
+    <h4>Equilibrio a una pierna (descalzo)</h4><p class="q">Entrena al pie y al cerebro a sostener juntos el arco.</p>
+    <span class="label">Cómo se hace</span>Descalzo, apóyate sobre un pie haciendo a la vez el "pie corto" (arco activo). Aguanta. Nivel pro: cierra los ojos, o ponte sobre un cojín, o pasa una pelota de una mano a otra.
+    <span class="label">Duración</span><div class="dur">30 s × 3 por pie · a diario</div>
+    <div class="yt">🎥 Busca en YouTube: <b>ejercicios propiocepcion tobillo en casa</b></div>
+    <div class="alt"><b>¿Te cuesta?</b> Apoya un dedo en la pared o en una mesa, con los ojos abiertos. Quita el apoyo poco a poco según mejoras.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b6);">IV</div><div class="body">
+    <h4>Marcha consciente "pies rectos"</h4><p class="q">Corrige el pie que escapa hacia fuera y el despegue.</p>
+    <span class="label">Cómo se hace</span>Camina despacio por un pasillo concentrándote en: 1) que los pies apunten <b>rectos</b> hacia delante, y 2) que el impulso final salga por el dedo gordo. Imagina que dejas una huella recta detrás.
+    <span class="label">Duración</span><div class="dur">2-3 minutos · a diario (¡y aplícalo al andar normal!)</div>
+    <div class="yt">🎥 Busca en YouTube: <b>reeducacion de la marcha pie plano</b></div>
+    <div class="alt"><b>¿Te cuesta en movimiento?</b> Hazlo primero parado: pisa despacio marcando talón → planta → empuje por el dedo gordo, paso a paso, antes de hacerlo caminando.</div>
+  </div></div>
+
+  <div class="ej"><div class="rom" style="background:var(--b6);">V</div><div class="body">
+    <h4>Saltos suaves de control</h4><p class="q">Prepara el pie para el impacto del kickboxing.</p>
+    <span class="label">Cómo se hace</span>Salta hacia delante con los dos pies y <b>aterriza despacio y en silencio</b>, amortiguando con las rodillas hacia fuera y el arco activo. Lo que cuenta es el aterrizaje, no la altura.
+    <span class="label">Duración</span><div class="dur">8 saltos × 2 · 2 veces por semana</div>
+    <div class="prec"><b>Solo a partir de la Fase 3</b>, cuando ya controles la rodilla en la sentadilla.</div>
+    <div class="yt">🎥 Busca en YouTube: <b>aterrizaje seguro salto rodilla</b></div>
+    <div class="alt"><b>¿Aún no estás para saltos?</b> Sustitúyelo por subir y bajar de puntillas con aterrizaje suave, o saltos muy pequeños en el sitio.</div>
+  </div></div>
+
+  <button class="doneBtn" id="done-b6" onclick="hecho('b6')">✓ Marcar Bloque 6 como completado hoy &nbsp;(+10 XP)</button>
+</section>
+
+<!-- ===== RUTINA ===== -->
+<section id="rutina">
+  <h2>Tu rutina semana a semana</h2>
+  <p>Avanzamos en 3 fases. No te saltes fases aunque te veas con ganas: cada una prepara la siguiente. Manda la constancia, no la intensidad.</p>
+
+  <div class="fase" style="border-left:5px solid var(--b1);">
+    <h3><span class="ph" style="background:var(--b1);">FASE 1</span> Soltar y despertar · semanas 1-2</h3>
+    <p>Objetivo: ganar movilidad y reconectar el pie.</p>
+    <table>
+      <tr><th>Día</th><th>Qué toca</th></tr>
+      <tr><td>Lun · Mié · Vie</td><td>Bloque 1 (liberar) + Bloque 2 (despertar)</td></tr>
+      <tr><td>Mar · Jue</td><td>Bloque 1 + Bloque 5 (realinear, de noche)</td></tr>
+      <tr><td>Sáb</td><td>Bloque 2 + paseo con "marcha consciente"</td></tr>
+      <tr><td>Dom</td><td>Descanso activo: solo estiramientos del Bloque 1</td></tr>
+    </table>
+  </div>
+
+  <div class="fase" style="border-left:5px solid var(--b3);">
+    <h3><span class="ph" style="background:var(--b3);">FASE 2</span> Dar fuerza · semanas 3-5</h3>
+    <p>Objetivo: poner fuerte el tibial posterior y la cadera. Aquí empieza el cambio de verdad.</p>
+    <table>
+      <tr><th>Día</th><th>Qué toca</th></tr>
+      <tr><td>Lun · Jue</td><td>Bloque 1 (breve) + Bloque 3 + Bloque 4</td></tr>
+      <tr><td>Mar · Vie</td><td>Bloque 2 + Bloque 6</td></tr>
+      <tr><td>Mié</td><td>Bloque 5 + estiramientos</td></tr>
+      <tr><td>Sáb</td><td>Sesión libre: el bloque que más te cueste</td></tr>
+      <tr><td>Dom</td><td>Descanso</td></tr>
+    </table>
+  </div>
+
+  <div class="fase" style="border-left:5px solid var(--b6);">
+    <h3><span class="ph" style="background:var(--b6);">FASE 3</span> Integrar · semana 6 en adelante</h3>
+    <p>Objetivo: que el patrón nuevo sea ya tu forma de moverte, también en el deporte.</p>
+    <table>
+      <tr><th>Día</th><th>Qué toca</th></tr>
+      <tr><td>Lun · Mié · Vie</td><td>Bloque 3 + Bloque 4 + Bloque 6 (con saltos de control)</td></tr>
+      <tr><td>Mar · Jue</td><td>Bloque 1 + Bloque 2 (mantenimiento) + Bloque 5</td></tr>
+      <tr><td>A diario</td><td>"Pie corto" y "marcha consciente" en la vida real</td></tr>
+    </table>
+  </div>
+
+  <div class="express">
+    <h3>⚡ Modo Express (días sin tiempo)</h3>
+    <p>Si un día vas con prisa, no lo dejes en cero. Esto en 5 minutos y la racha sigue viva:</p>
+    <ul>
+      <li>30 s rodando la planta de cada pie (Bloque 1)</li>
+      <li>1 serie de "pie corto", 10 reps (Bloque 2)</li>
+      <li>30 s de equilibrio a una pierna por pie (Bloque 6)</li>
+    </ul>
+    <p class="small" style="color:#cfc6b6;">Hacer poco cuenta. Hacer cero, no. <b>Protege la racha.</b></p>
+  </div>
+</section>
+
+<!-- ===== HÁBITOS ===== -->
+<section id="habitos">
+  <h2>Hábitos que multiplican el resultado</h2>
+  <p>Los ejercicios son el 70%. Este otro 30% es lo que haces el resto del día.</p>
+  <div class="habito"><h4>Descalzo en casa</h4><p>Pasa tiempo descalzo o con calcetín por casa. Cuanto más trabaje el pie solo en superficies normales, más fuerte se hace. Entrenamiento gratis.</p></div>
+  <div class="habito"><h4>Sigue usando tus plantillas</h4><p>Tus plantillas son el apoyo durante el día; este programa hace que el pie gane fuerza por debajo. Van de la mano. Revisa con tu podólogo cómo va según vayas progresando.</p></div>
+  <div class="habito"><h4>Calzado que ayuda</h4><p>Para el día a día, deportiva con buena sujeción de talón y suela flexible delante. Evita zapatillas totalmente planas y blandas para caminar mucho rato.</p></div>
+  <div class="habito"><h4>Caminatas largas: dosifica</h4><p>En días de mucho andar (como el viaje), para 1-2 minutos cada cierto tiempo, mueve el tobillo y haz 5 "pies cortos". Repartir el esfuerzo evita que el pie se venza al final.</p></div>
+  <div class="habito"><h4>Kickboxing con cabeza</h4><p>Genial deporte para ti. Antes de entrenar, 2 minutos de Bloque 1 y equilibrio. Al pivotar y patear, que la rodilla no caiga hacia dentro: es lo mismo del Bloque 4 y 6.</p></div>
+  <div class="habito"><h4>La mochila, ligera y bien puesta</h4><p>Mucho peso mal colocado cambia cómo apoyas el pie. Lleva lo justo y ajústala a la espalda.</p></div>
+</section>
+
+<!-- ===== DIARIO ===== -->
+<section id="diario">
+  <div class="diario">
+    <h2>Diario de a bordo</h2>
+    <p>Anota cómo te ha ido. Llevar el registro es lo que separa a quien mejora de quien lo deja. Se guarda en este dispositivo.</p>
+    <div class="frow">
+      <div class="field">
+        <label>Energía hoy <span class="rngval" id="vEner">7</span>/10</label>
+        <input type="range" id="iEner" min="1" max="10" value="7" oninput="document.getElementById('vEner').textContent=this.value">
+        <div class="small">Cómo de cansado te has notado: 1 = nada, 10 = al límite.</div>
+      </div>
+      <div class="field">
+        <label>Molestia en el pie <span class="rngval" id="vDol">2</span>/10</label>
+        <input type="range" id="iDol" min="0" max="10" value="2" oninput="document.getElementById('vDol').textContent=this.value">
+        <div class="small">0 = nada · 10 = mucho. Si sube varios días seguidos, avísanos.</div>
+      </div>
+    </div>
+    <div class="frow" style="margin-top:14px;">
+      <div class="field" style="flex:1 1 100%;">
+        <label>Notas</label>
+        <textarea id="iNota" rows="2" placeholder="Hoy he hecho el Bloque 1 y 2. El equilibrio a la pata coja me cuesta menos que ayer..."></textarea>
+      </div>
+    </div>
+    <button class="addBtn" style="margin-top:14px;" onclick="addEntrada()">Guardar entrada de hoy</button>
+    <div id="entradas" style="margin-top:18px;"></div>
+  </div>
+  <div class="aviso" style="margin-top:20px;">
+    <strong>Recordatorio:</strong> este protocolo es de carácter <strong>complementario</strong> y no sustituye el diagnóstico ni el tratamiento de un profesional sanitario. Al ser David un chico en crecimiento con una estructura del pie marcada, recomendamos <strong>revisión con su podólogo</strong> según vaya progresando. Si en algún momento creéis que necesita refuerzo, podéis preguntarnos por la opción de un <strong>entrenador personal</strong> para reeducar la marcha. Vamos a darlo todo con este programa.
+  </div>
+</section>
+
+<!-- ===== CIERRE ===== -->
+<section>
+  <div class="cierre">
+    <h2>Una cosa más, David</h2>
+    <p>No hace falta que seas perfecto. Hace falta que seas constante, y eso sí está 100% en tu mano. Habrá días de pereza total, y no pasa nada: lo importante es volver al día siguiente. Nadie mantiene una racha sin fallar alguna vez.</p>
+    <p>Tu pie lleva años funcionando así, o sea que dale unas semanas con paciencia y vas a flipar con cómo responde. Y cuando lo notes —porque lo vas a notar: andando, en cualquier viaje, soltando patadas en el tatami sin que el pie te frene— acuérdate de que eso lo has currado tú, día a día. De nadie más.</p>
+    <p>Yo voy contigo en todo el proceso. Cualquier duda, me escribes. Ahora te toca a ti: <strong>a darlo todo.</strong></p>
+    <div class="firma">— Kiko</div>
+  </div>
+</section>
+
+<footer>
+  Kiko Martínez · Terapeuta Natural<br>
+  Osteopatía · Coaching · Fitoterapia · Bienestar Integral<br>
+  <span class="lema">"Tu bienestar, mi máxima prioridad."</span><br><br>
+  <span class="small">Programa de carácter complementario. No sustituye el diagnóstico ni el tratamiento médico.</span>
+</footer>
+
+<div class="toolbar">
+  <button onclick="window.print()">🖨 Imprimir / PDF</button>
+  <button onclick="resetSistema()">↺ Reiniciar</button>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <p id="modalMsg"></p>
+    <div class="mbtns">
+      <button class="mno" onclick="cerrarModal(false)">Cancelar</button>
+      <button class="mok" onclick="cerrarModal(true)">Sí, seguro</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== NAV ===== */
+function irA(id){var el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+/* ===== MODAL ===== */
+var _cb=null;
+function kmConfirm(m,cb){document.getElementById('modalMsg').textContent=m;document.getElementById('modalBg').style.display='flex';_cb=cb;}
+function cerrarModal(ok){document.getElementById('modalBg').style.display='none';if(_cb){_cb(ok);_cb=null;}}
+
+/* ===== FECHAS ===== */
+function hoy(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function ayer(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+
+/* ===== ESTADO (en memoria, persistencia opcional) ===== */
+var bloques=['b1','b2','b3','b4','b5','b6'];
+var nivelesXP =[0,60,140,240,360,520];
+var nivelesNom=['Arranque','Conectando','En marcha','Modo turbo','Alto rendimiento','Pie firme'];
+var logrosDef=[
+  {id:'a1', ic:'>_', nom:'Primer arranque', desc:'Completa tu primer bloque', cond:function(s){return s.totalSes>=1;}},
+  {id:'r3', ic:'3d', nom:'Racha de 3', desc:'3 días seguidos', cond:function(s){return s.racha>=3;}},
+  {id:'r7', ic:'7d', nom:'Racha de 7', desc:'7 días seguidos', cond:function(s){return s.racha>=7;}},
+  {id:'r14',ic:'14', nom:'Imparable', desc:'14 días seguidos', cond:function(s){return s.racha>=14;}},
+  {id:'fs', ic:'★',  nom:'Cuadro completo', desc:'Haz al menos 1 vez los 6 bloques', cond:function(s){return bloques.every(function(b){return (s.ses[b]||0)>=1;});}},
+  {id:'c1', ic:'~',  nom:'Cadena suelta', desc:'10 veces el Bloque 1', cond:function(s){return (s.ses.b1||0)>=10;}},
+  {id:'c2', ic:'◇',  nom:'Pie despierto', desc:'10 veces el Bloque 2', cond:function(s){return (s.ses.b2||0)>=10;}},
+  {id:'c4', ic:'■',  nom:'Cadera firme', desc:'10 veces el Bloque 4', cond:function(s){return (s.ses.b4||0)>=10;}},
+  {id:'c6', ic:'➜',  nom:'Marcha nueva', desc:'10 veces el Bloque 6', cond:function(s){return (s.ses.b6||0)>=10;}},
+  {id:'up', ic:'%',  nom:'21 días activo', desc:'Entrena en 21 días distintos', cond:function(s){return s.dias.length>=21;}}
+];
+
+function cargar(){
+  var d={xp:0,ses:{b1:0,b2:0,b3:0,b4:0,b5:0,b6:0},totalSes:0,racha:0,ultima:'',dias:[],porDia:{},hechoHoy:[],marcaDia:''};
+  try{var raw=localStorage.getItem('david_sistema'); if(raw){var o=JSON.parse(raw); for(var k in o){d[k]=o[k];} if(!d.ses)d.ses={}; if(!d.porDia)d.porDia={};}}catch(e){}
+  if(d.marcaDia!==hoy()){d.hechoHoy=[];}
+  return d;
+}
+function guardar(){try{localStorage.setItem('david_sistema',JSON.stringify(S));}catch(e){}}
+var S=cargar();
+
+function hecho(b){
+  if(S.hechoHoy.indexOf(b)>=0) return;       /* solo una vez al día por bloque */
+  S.hechoHoy.push(b); S.marcaDia=hoy();
+  S.ses[b]=(S.ses[b]||0)+1; S.totalSes++; S.xp+=10;
+  var h=hoy();
+  S.porDia[h]=(S.porDia[h]||0)+1;
+  if(S.ultima!==h){ S.racha=(S.ultima===ayer())?S.racha+1:1; S.ultima=h; if(S.dias.indexOf(h)<0) S.dias.push(h); }
+  guardar(); render();
+  var bp=document.getElementById('done-'+b); if(bp){ bp.classList.add('pop'); setTimeout(function(){ bp.classList.remove('pop'); },460); }
+}
+
+function nivelDe(xp){var i,idx=0; for(i=0;i<nivelesXP.length;i++){if(xp>=nivelesXP[i])idx=i;} return idx;}
+
+function render(){
+  /* botones */
+  bloques.forEach(function(b){
+    var btn=document.getElementById('done-'+b); if(!btn) return;
+    if(S.hechoHoy.indexOf(b)>=0){btn.classList.add('ok'); btn.innerHTML='✓ Bloque '+b.charAt(1)+' hecho hoy · +10 XP';}
+    else{btn.classList.remove('ok'); btn.innerHTML='✓ Marcar Bloque '+b.charAt(1)+' como completado hoy &nbsp;(+10 XP)';}
+  });
+  /* nivel + barra */
+  var nv=nivelDe(S.xp);
+  document.getElementById('lvlNum').textContent='NIVEL '+(nv+1);
+  document.getElementById('lvlName').textContent=nivelesNom[nv];
+  var base=nivelesXP[nv], techo=(nv<nivelesXP.length-1)?nivelesXP[nv+1]:nivelesXP[nv];
+  var pct=(nv<nivelesXP.length-1)?Math.round(((S.xp-base)/(techo-base))*100):100;
+  document.getElementById('xpbar').style.width=Math.max(3,pct)+'%';
+  document.getElementById('xpTxt').textContent=S.xp+' XP';
+  document.getElementById('xpNext').textContent=(nv<nivelesXP.length-1)?('siguiente nivel a los '+techo+' XP'):'¡nivel máximo!';
+  document.getElementById('stRacha').textContent=S.racha;
+  document.getElementById('stSes').textContent=S.totalSes;
+  document.getElementById('stDias').textContent=S.dias.length;
+  /* logros */
+  var cont=document.getElementById('logros'); cont.innerHTML='';
+  logrosDef.forEach(function(l){
+    var on=l.cond(S);
+    var d=document.createElement('div'); d.className='logro'+(on?' on':'');
+    d.innerHTML='<div class="ic">'+l.ic+(on?'':' ?')+'</div><h5>'+l.nom+'</h5><p>'+l.desc+'</p>';
+    cont.appendChild(d);
+  });
+  radar();
+  dibujarSemana();
+}
+
+function dibujarSemana(){
+  var c=document.getElementById('semana'); if(!c||!c.getContext) return;
+  var ctx=c.getContext('2d'); var W=c.width, H=c.height; ctx.clearRect(0,0,W,H);
+  var letras=['L','M','X','J','V','S','D'];
+  var today=new Date(); today.setHours(0,0,0,0);
+  var dow=(today.getDay()+6)%7;                  /* 0=Lunes ... 6=Domingo */
+  var monday=new Date(today); monday.setDate(today.getDate()-dow);
+  var n=7, slot=W/n, cy=31, r=15;
+  ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(slot*0.5, cy); ctx.lineTo(slot*(n-0.5), cy); ctx.stroke();
+  for(var i=0;i<n;i++){
+    var d=new Date(monday); d.setDate(monday.getDate()+i);
+    var key=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    var on=((S.porDia&&S.porDia[key])||0)>0;
+    var cx=slot*(i+0.5);
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
+    if(on){
+      var g=ctx.createLinearGradient(cx-r,cy-r,cx+r,cy+r); g.addColorStop(0,'#2dd4bf'); g.addColorStop(1,'#C4A84A');
+      ctx.shadowColor='rgba(45,212,191,.55)'; ctx.shadowBlur=10; ctx.fillStyle=g; ctx.fill();
+    } else {
+      ctx.fillStyle='#2a2620'; ctx.fill(); ctx.shadowBlur=0; ctx.strokeStyle='rgba(255,255,255,.14)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    ctx.restore();
+    if(on){ ctx.strokeStyle='#0d0b07'; ctx.lineWidth=2.6; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(cx-5,cy+1); ctx.lineTo(cx-1,cy+5); ctx.lineTo(cx+6,cy-5); ctx.stroke(); }
+    ctx.fillStyle = '#bdb29c';
+    ctx.font = '12px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(letras[i], cx, cy+r+16);
+  }
+}
+
+function radar(){
+  var c=document.getElementById('radar'); if(!c||!c.getContext) return;
+  var ctx=c.getContext('2d'), W=c.width, H=c.height, cx=W/2, cy=H/2+4, R=82, n=6;
+  var labels=['Liberar','Despertar','Fuerza','Cadera','Alinear','Marcha'];
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,.14)';
+  var r,i,a,x,y;
+  for(r=1;r<=4;r++){ctx.beginPath();for(i=0;i<=n;i++){a=-Math.PI/2+i*(2*Math.PI/n);x=cx+(R*r/4)*Math.cos(a);y=cy+(R*r/4)*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}
+  ctx.fillStyle='#cdbf9f'; ctx.font='10px Arial'; ctx.textAlign='center';
+  for(i=0;i<n;i++){a=-Math.PI/2+i*(2*Math.PI/n);ctx.strokeStyle='rgba(255,255,255,.14)';ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));ctx.stroke();ctx.fillText(labels[i],cx+(R+16)*Math.cos(a),cy+(R+16)*Math.sin(a)+3);}
+  ctx.beginPath();
+  for(i=0;i<=n;i++){var idx=i%n;var v=Math.min((S.ses[bloques[idx]]||0),10)/10;a=-Math.PI/2+idx*(2*Math.PI/n);x=cx+(R*v)*Math.cos(a);y=cy+(R*v)*Math.sin(a);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+  ctx.closePath(); ctx.fillStyle='rgba(45,212,191,.28)'; ctx.strokeStyle='#2dd4bf'; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+}
+
+/* ===== DIARIO ===== */
+var diarioMem=[];
+function cargarDiario(){try{var r=localStorage.getItem('david_diario'); diarioMem=r?JSON.parse(r):[];}catch(e){diarioMem=[];}}
+function guardarDiario(){try{localStorage.setItem('david_diario',JSON.stringify(diarioMem));}catch(e){}}
+function addEntrada(){
+  diarioMem.unshift({fecha:new Date().toLocaleDateString('es-ES'),ener:document.getElementById('iEner').value,dol:document.getElementById('iDol').value,nota:document.getElementById('iNota').value.trim()});
+  guardarDiario(); document.getElementById('iNota').value=''; renderDiario();
+}
+function renderDiario(){
+  var cont=document.getElementById('entradas'); cont.innerHTML='';
+  if(diarioMem.length===0){cont.innerHTML='<p class="small">Aún no has guardado ninguna entrada. ¡Anímate con la primera!</p>'; return;}
+  diarioMem.forEach(function(e){var d=document.createElement('div');d.className='entry';d.innerHTML='<div class="d">'+e.fecha+' · Energía '+e.ener+'/10 · Molestia '+e.dol+'/10</div>'+(e.nota?('<div>'+e.nota.replace(/</g,'&lt;')+'</div>'):'');cont.appendChild(d);});
+}
+
+/* ===== RESET ===== */
+function resetSistema(){
+  kmConfirm('¿Seguro que quieres reiniciar todo tu progreso y el diario? No se puede deshacer.',function(ok){
+    if(ok){S={xp:0,ses:{b1:0,b2:0,b3:0,b4:0,b5:0,b6:0},totalSes:0,racha:0,ultima:'',dias:[],porDia:{},hechoHoy:[],marcaDia:''};diarioMem=[];guardar();guardarDiario();render();renderDiario();}
+  });
+}
+
+/* ===== INIT ===== */
+cargarDiario();
+render();
+renderDiario();
+
+/* ===== vida visual: revelado al hacer scroll, a prueba de fallos ===== */
+(function(){
+  try{
+    document.body.classList.add('anim');
+    var els=[].slice.call(document.querySelectorAll('.carta,.explica,.dash,.gcard,.ej,.fase,.habito,.diario,.express,.aviso,.cierre'));
+    els.forEach(function(e){ e.classList.add('reveal'); });
+    var mostrarTodo=function(){ els.forEach(function(e){ e.classList.add('in'); }); };
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(ent){
+        ent.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+      },{threshold:0.08, rootMargin:'0px 0px -40px 0px'});
+      els.forEach(function(e){ io.observe(e); });
+    } else { mostrarTodo(); }
+    setTimeout(mostrarTodo, 3500);   /* red de seguridad: nada se queda oculto */
+    window.addEventListener('beforeprint', mostrarTodo);
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
